@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function ApplyLoan() {
   const [formData, setFormData] = useState({
@@ -7,24 +8,26 @@ function ApplyLoan() {
     dob: '',
     gender: '',
     annualIncome: '',
-     occupationType: '',
     occupation: '',
     loanAmount: '',
-    loanPurpose: '',
     loanTenure: '',
     address: '',
     mobileNumber: '',
     altMobileNumber: '',
     email: '',
-    maritalStatus: '',
-    proofOfIncome: '',
+    maritalStatus: '',  // Added maritalStatus field
+    aadharNo: '',
+    panNo: '',
     bankName: '',
-    accountNumber: '',
+    ifscCode: '',
     emergencyContactName: '',
     emergencyContactNumber: '',
     existingLoans: '',
     collateralDetails: ''
   });
+
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,12 +39,58 @@ function ApplyLoan() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+
+    // Prepare payload as per API
+    const payload = {
+      userid: 1, // Example static userID
+      applicantDOB: formData.dob,
+      gender: formData.gender,
+      annualIncome: formData.annualIncome,
+      occupation: formData.occupation,
+      loanAmount: formData.loanAmount,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      aadharNo: formData.aadharNo,
+      panNo: formData.panNo,
+      tenure: formData.loanTenure,
+      address: formData.address,
+      mobNo: formData.mobileNumber,
+      alternateMobileNo: formData.altMobileNumber,
+      email: formData.email,
+      emrContactName: formData.emergencyContactName,
+      emrContactNum: formData.emergencyContactNumber,
+      marital_status: formData.maritalStatus,  // Added marital_status in payload
+      pBank_Name: formData.bankName,
+      ifsc_code: formData.ifscCode,
+      emergency_contact_name: formData.emergencyContactName,
+      emergency_contact_num: formData.emergencyContactNumber,
+      existing_loan: formData.existingLoans,
+      collateral_details: formData.collateralDetails
+    };
+
+    // Send POST request to the API
+    axios.post('http://localhost:5123/api/loans/apply', payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': 'Cookie_1=value',  // Replace with actual cookie value
+      }
+    })
+    .then(response => {
+      setSuccess("Loan application submitted successfully!");
+      setError(null);  // Clear any previous errors
+    })
+    .catch(err => {
+      setSuccess(null);  // Clear any previous success messages
+      setError("Error submitting the loan application. Please try again.");
+    });
   };
 
   return (
     <div className="container mt-5">
       <h1>Apply for a Loan</h1>
+      {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+      
       <form onSubmit={handleSubmit}>
         <div className="row">
           <div className="col-md-6 mb-3">
@@ -86,38 +135,20 @@ function ApplyLoan() {
           </div>
 
           <div className="col-md-6 mb-3">
-            <label className="form-label">Gender</label>
-            <div>
-              <input
-                type="radio"
-                id="male"
-                name="gender"
-                value="Male"
-                onChange={handleChange}
-                checked={formData.gender === 'Male'}
-              />
-              <label htmlFor="male" className="mx-2">Male</label>
-
-              <input
-                type="radio"
-                id="female"
-                name="gender"
-                value="Female"
-                onChange={handleChange}
-                checked={formData.gender === 'Female'}
-              />
-              <label htmlFor="female" className="mx-2">Female</label>
-
-              <input
-                type="radio"
-                id="other"
-                name="gender"
-                value="Other"
-                onChange={handleChange}
-                checked={formData.gender === 'Other'}
-              />
-              <label htmlFor="other" className="mx-2">Other</label>
-            </div>
+            <label htmlFor="gender" className="form-label">Gender</label>
+            <select
+              className="form-control"
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
         </div>
 
@@ -148,64 +179,6 @@ function ApplyLoan() {
             />
           </div>
         </div>
-        
-        <div className="row">
-            <div className="col-md-4 mb-3">
-              <label htmlFor="aadhaar1" className="form-label">Aadhaar Number</label>
-              <div className="d-flex">
-                <input
-                  type="text"
-                  className="form-control"
-                  id="aadhaar1"
-                  name="aadhaar1"
-                  maxLength="4"
-                  value={formData.aadhaar1}
-                  onChange={(e) => handleChange(e)}
-                  required
-                />
-                <span className="mx-1">-</span>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="aadhaar2"
-                  name="aadhaar2"
-                  maxLength="4"
-                  value={formData.aadhaar2}
-                  onChange={(e) => handleChange(e)}
-                  required
-                />
-                <span className="mx-1">-</span>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="aadhaar3"
-                  name="aadhaar3"
-                  maxLength="4"
-                  value={formData.aadhaar3}
-                  onChange={(e) => handleChange(e)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* PAN Details */}
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label htmlFor="panDetails" className="form-label">PAN Number</label>
-              <input
-                type="text"
-                className="form-control"
-                id="panDetails"
-                name="panDetails"
-                value={formData.panDetails}
-                onChange={handleChange}
-                required
-                maxLength="10"
-              />
-            </div>
-          </div>
-
 
         <div className="row">
           <div className="col-md-6 mb-3">
@@ -222,29 +195,9 @@ function ApplyLoan() {
           </div>
 
           <div className="col-md-6 mb-3">
-            <label htmlFor="loanPurpose" className="form-label">Loan Purpose</label>
-            <select
-              className="form-select"
-              id="loanPurpose"
-              name="loanPurpose"
-              value={formData.loanPurpose}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Purpose</option>
-              <option value="Home Loan">Home Loan</option>
-              <option value="Personal Loan">Personal Loan</option>
-              <option value="Education Loan">Education Loan</option>
-              <option value="Car Loan">Car Loan</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label htmlFor="loanTenure" className="form-label">Preferred Loan Tenure</label>
+            <label htmlFor="loanTenure" className="form-label">Loan Tenure (Months)</label>
             <input
-              type="text"
+              type="number"
               className="form-control"
               id="loanTenure"
               name="loanTenure"
@@ -253,18 +206,19 @@ function ApplyLoan() {
               required
             />
           </div>
+        </div>
 
-          <div className="col-md-6 mb-3">
-            <label htmlFor="address" className="form-label">Address</label>
-            <textarea
-              className="form-control"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="mb-3">
+          <label htmlFor="address" className="form-label">Address</label>
+          <input
+            type="text"
+            className="form-control"
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="row">
@@ -293,10 +247,27 @@ function ApplyLoan() {
             />
           </div>
         </div>
-
+        
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label htmlFor="email" className="form-label">Email Address</label>
+            <label htmlFor="maritalStatus" className="form-label">Marital Status</label>
+            <select
+              className="form-control"
+              id="maritalStatus"
+              name="maritalStatus"
+              value={formData.maritalStatus}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Marital Status</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Divorced">Divorced</option>
+            </select>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <label htmlFor="email" className="form-label">Email</label>
             <input
               type="email"
               className="form-control"
@@ -307,65 +278,38 @@ function ApplyLoan() {
               required
             />
           </div>
-
-          
-            
-            
-
-
-          <div className="col-md-6 mb-3">
-            <label htmlFor="maritalStatus" className="form-label">Marital Status</label>
-            <select
-              className="form-select"
-              id="maritalStatus"
-              name="maritalStatus"
-              value={formData.maritalStatus}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Status</option>
-              <option value="Married">Married</option>
-              <option value="Single">Single</option>
-              <option value="Divorced">Divorced</option>
-              <option value="Widowed">Widowed</option>
-            </select>
-          </div>
         </div>
-        <div>
-        <div className="col-md-6 mb-3">
-                <label htmlFor="occupationType" className="form-label">Occupation Type</label>
-                <select
-                className="form-select"
-                id="occupationType"
-                name="occupationType"
-                value={formData.occupationType}
-                onChange={handleChange}
-                required
-                >
-                <option value="">Select Occupation Type</option>
-                <option value="Salaried">Salaried</option>
-                <option value="Self-Employed">Self-Employed</option>
-                <option value="Unemployed">Unemployed</option>
-                <option value="Retired">Retired</option>
-                </select>
-            </div>
-        </div>
-        
-
+     
 
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label htmlFor="proofOfIncome" className="form-label">Proof of Income</label>
+            <label htmlFor="aadharNo" className="form-label">Aadhar Number</label>
             <input
-              type="file"
+              type="text"
               className="form-control"
-              id="proofOfIncome"
-              name="proofOfIncome"
+              id="aadharNo"
+              name="aadharNo"
+              value={formData.aadharNo}
               onChange={handleChange}
               required
             />
           </div>
 
+          <div className="col-md-6 mb-3">
+            <label htmlFor="panNo" className="form-label">PAN Number</label>
+            <input
+              type="text"
+              className="form-control"
+              id="panNo"
+              name="panNo"
+              value={formData.panNo}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="row">
           <div className="col-md-6 mb-3">
             <label htmlFor="bankName" className="form-label">Bank Name</label>
             <input
@@ -378,22 +322,22 @@ function ApplyLoan() {
               required
             />
           </div>
-        </div>
 
-        <div className="row">
           <div className="col-md-6 mb-3">
-            <label htmlFor="accountNumber" className="form-label">Bank Account Number</label>
+            <label htmlFor="ifscCode" className="form-label">IFSC Code</label>
             <input
               type="text"
               className="form-control"
-              id="accountNumber"
-              name="accountNumber"
-              value={formData.accountNumber}
+              id="ifscCode"
+              name="ifscCode"
+              value={formData.ifscCode}
               onChange={handleChange}
               required
             />
           </div>
+        </div>
 
+        <div className="row">
           <div className="col-md-6 mb-3">
             <label htmlFor="emergencyContactName" className="form-label">Emergency Contact Name</label>
             <input
@@ -406,9 +350,7 @@ function ApplyLoan() {
               required
             />
           </div>
-        </div>
 
-        <div className="row">
           <div className="col-md-6 mb-3">
             <label htmlFor="emergencyContactNumber" className="form-label">Emergency Contact Number</label>
             <input
@@ -421,23 +363,29 @@ function ApplyLoan() {
               required
             />
           </div>
+        </div>
 
+        <div className="row">
           <div className="col-md-6 mb-3">
-            <label htmlFor="existingLoans" className="form-label">Existing Loans</label>
-            <textarea
+            <label htmlFor="existingLoans" className="form-label">Existing Loan</label>
+            <select
               className="form-control"
               id="existingLoans"
               name="existingLoans"
               value={formData.existingLoans}
               onChange={handleChange}
-            />
+              required
+            >
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
           </div>
-        </div>
 
-        <div className="row">
           <div className="col-md-6 mb-3">
             <label htmlFor="collateralDetails" className="form-label">Collateral Details</label>
-            <textarea
+            <input
+              type="text"
               className="form-control"
               id="collateralDetails"
               name="collateralDetails"

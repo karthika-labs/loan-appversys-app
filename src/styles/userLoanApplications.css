@@ -1,0 +1,27 @@
+/* userLoanApplications.css */
+.container {
+    padding: 20px;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  .alert-danger {
+    font-size: 1.2rem;
+  }
+  
+  /* Table Styling */
+  .table {
+    margin-top: 20px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+  }
+  
+  .table .badge {
+    font-size: 14px;
+  }
+  

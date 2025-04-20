@@ -9,7 +9,7 @@ function HomePage() {
   };
 
   const handleViewLoanApplication = () => {
-    navigate('/view-loan-application');
+    navigate('/view-myloan-application');
   };
 
   return (
@@ -26,7 +26,7 @@ function HomePage() {
           onClick={handleViewLoanApplication}
           className="btn btn-secondary mx-2"
         >
-          View Loan Application
+          View My Loan Application
         </button>
       </div>
     </div>

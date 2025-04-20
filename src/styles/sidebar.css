@@ -1,0 +1,85 @@
+/* sidebar.css */
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #f8f9fa; /* Light background color */
+    padding: 20px;
+    height: 100vh; /* Full height */
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
+  }
+  
+  .sidebar h4 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #343a40; /* Dark text color */
+  }
+  
+  .sidebar .nav-item {
+    margin: 10px 0; /* Space between items */
+  }
+  
+  .sidebar .nav-link {
+    text-decoration: none;
+    color: #000;
+    font-size: 16px;
+    display: block;
+    padding: 8px 16px;
+    border-radius: 4px;
+  }
+  
+  .sidebar .nav-link:hover {
+    background-color: #007bff; /* Highlight color */
+    color: #fff; /* White text when hovered */
+  }
+  
+  .sidebar .btn-logout {
+    width: 100%;
+    margin-top: 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+  }
+  
+  .sidebar .btn-logout:hover {
+    background-color: #c82333; /* Darker red when hovered */
+  }
+  
+  /* Main Content styles */
+  .main-content {
+    margin-left: 270px; /* Offset for sidebar */
+    padding: 20px;
+    width: calc(100% - 270px); /* Adjust width to make space for sidebar */
+  }
+  
+  .main-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #343a40;
+  }
+  
+  .table-sm {
+    font-size: 0.875rem; /* Smaller table text for better fit */
+  }
+  
+  /* For alert messages */
+  .alert {
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  /* For loading spinner */
+  .d-flex {
+    justify-content: center;
+  }
+  
+  .d-flex.justify-content-center {
+    margin-top: 20px;
+  }
+  

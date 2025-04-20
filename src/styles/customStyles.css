@@ -1,0 +1,21 @@
+/* customStyles.css */
+.table th, .table td {
+    padding: 0.75rem;
+    text-align: center;
+  }
+  
+  .table td {
+    word-wrap: break-word;
+  }
+  
+  .table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  .container {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  

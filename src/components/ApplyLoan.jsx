@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import jwt_decode from "jwt-decode";
+import { toast } from 'react-toastify';
+
+
 
 function ApplyLoan() {
   const [formData, setFormData] = useState({
@@ -28,6 +32,17 @@ function ApplyLoan() {
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const token = localStorage.getItem('token');
+  if (!token) {
+    navigate('/');
+    return;
+  }
+  let userId = null;
+if (token) {
+  const decoded = jwt_decode(token);
+  userId = decoded.userID;
+}
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,13 +51,15 @@ function ApplyLoan() {
       [name]: value
     });
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Prepare payload as per API
+    console.log(userId)
     const payload = {
-      userid: 1, // Example static userID
+      userid: userId, // Example static userID
       applicantDOB: formData.dob,
       gender: formData.gender,
       annualIncome: formData.annualIncome,
@@ -72,16 +89,20 @@ function ApplyLoan() {
     axios.post('http://localhost:5123/api/loans/apply', payload, {
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': 'Cookie_1=value',  // Replace with actual cookie value
+        'Authorization': `Bearer ${token}`,  // Replace with actual cookie value
       }
     })
     .then(response => {
-      setSuccess("Loan application submitted successfully!");
+      toast.success(response.data.message || "Loan application submitted successfully");
       setError(null);  // Clear any previous errors
     })
     .catch(err => {
-      setSuccess(null);  // Clear any previous success messages
-      setError("Error submitting the loan application. Please try again.");
+      if (err.response?.data?.error) {
+        toast.error(err.response.data.error);
+      } else {
+        toast.error("Error submitting the loan application. Please try again.");
+      }
+      setError("Error submitting the loan application.");
     });
   };
 

@@ -2,45 +2,63 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Spinner, Alert } from 'react-bootstrap';
 import UserSidebar from './UserSideBar.jsx';
+import { useNavigate } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
+import { ToastContainer, toast } from 'react-toastify';
 import '../styles/userLoanApplications.css';  // Custom CSS for the main content page
 
 const UserLoanApplications = () => {
   const [loanApplications, setLoanApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  useEffect(() => {
+    const token = localStorage.getItem('token');
     if (!token) {
+      toast.error('No token found. Please login again.');
       navigate('/');
       return;
     }
 
-  // Fetch loan applications for user ID 1
-  const fetchLoanApplications = async () => {
+    let userId = null;
     try {
-      const response = await fetch('http://localhost:5123/api/loans/user/1', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,  // Pass user token here
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch loan applications');
-      }
-
-      const data = await response.json();
-      setLoanApplications(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+      const decoded = jwt_decode(token);
+      userId = decoded.userID;
+    } catch (err) {
+      console.error("Failed to decode token", err);
+      toast.error('Invalid token. Please login again.');
+      navigate('/');
+      return;
     }
-  };
 
-  useEffect(() => {
+    const fetchLoanApplications = async () => {
+      try {
+        const response = await fetch(`http://localhost:5123/api/loans/user/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          toast.error('Failed to fetch loan applications');
+          throw new Error('Failed to fetch loan applications');
+        }
+
+        const data = await response.json();
+        setLoanApplications(data);
+        toast.success('Loan applications loaded successfully!');
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchLoanApplications();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="d-flex">

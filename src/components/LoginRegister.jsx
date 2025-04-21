@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import { decode as jwt_decode } from 'jwt-decode';  // Use named import
-
+import { ToastContainer, toast } from 'react-toastify';
 import { Container, Tab, Tabs, Form, Button, Alert } from 'react-bootstrap';
 
 const LoginRegister = () => {
@@ -11,7 +11,7 @@ const LoginRegister = () => {
     mailID: '',
     password: '',
     username: '',
-    role: 'user',
+    role: 'applicant',
     phoneno: ''
   });
   const [error, setError] = useState('');
@@ -49,22 +49,25 @@ const LoginRegister = () => {
           const { default: jwt_decode } = await import('jwt-decode');
   
           const decoded = jwt_decode(data.token);  // Decode JWT token
-  
+          toast.success('Login successful! Redirecting...');
           // Check role and navigate
-          if (decoded.role === 'admin' || decoded.role === 'loan_authority') {
-            navigate('/admin-dashboard');
-          } else {
-            navigate('/home');
-          }
+          setTimeout(() => {
+            if (decoded.role === 'admin' || decoded.role === 'loan_authority') {
+              navigate('/admin-dashboard');
+            } else {
+              navigate('/home');
+            }
+          }, 1500);
+          
         } else {
-          setError('Login failed: No token received');
+          toast.error('Login failed: No token received');
         }
       } else {
-        setError(data.message || 'Invalid credentials');
+        toast.error(data.message || 'Invalid credentials');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Server error during login');
+      toast.error('Server error during login');
     }
   };
   
@@ -89,13 +92,14 @@ const LoginRegister = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert(data.message);
+        toast.success(data.message);
         setTabKey('login');
+        
       } else {
-        setError(data.message || 'Registration failed');
+        toast.error(data.message || 'Registration failed');
       }
     } catch (err) {
-      setError('Server error during registration');
+      toast.error('Server error during registration');
     }
   };
 
@@ -134,8 +138,8 @@ const LoginRegister = () => {
             <Form.Group className="mb-3">
               <Form.Label>Role</Form.Label>
               <Form.Select name="role" onChange={handleInputChange}>
-                <option value="user">User</option>
-                <option value="loan_authority">Loan Authority</option>
+                <option value="applicant">User</option> 
+                
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">

@@ -15,6 +15,7 @@ const ViewLoanApplications = () => {
       navigate('/');
       return;
     }
+    const userId = localStorage.getItem('userId');
 
   const fetchLoanApplications = async () => {
     try {

@@ -8,10 +8,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import UserLoanApplications from './components/UserLoanApplications';
 import AdminDashboard from './components/AdminDashboard';  // Add this line
 import { AuthProvider } from './context/AuthContext'; // Import AuthProvider
-
+import { ToastContainer } from 'react-toastify';
 function App() {
   return (
     <AuthProvider>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Router>
         <Routes>
           <Route path="/" element={<LoginRegister />} />

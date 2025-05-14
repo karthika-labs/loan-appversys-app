@@ -9,30 +9,36 @@ function ApplyLoan() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    dob: '',
+    applicantDOB: '',
     gender: '',
     annualIncome: '',
     occupation: '',
     loanAmount: '',
-    loanTenure: '',
+    tenure: '',
     address: '',
-    mobileNumber: '',
-    altMobileNumber: '',
+    mobNo: '',
+    alternateMobileNo: '',
     email: '',
-    maritalStatus: '',  // Added maritalStatus field
+    marital_status: '',  // Added marital_status field
     aadharNo: '',
     panNo: '',
-    bankName: '',
-    ifscCode: '',
-    emergencyContactName: '',
-    emergencyContactNumber: '',
-    existingLoans: '',
-    collateralDetails: ''
+    pBank_Name: '',
+    ifsc_code: '',
+    emergency_contact_name: '',
+    emergency_contact_num: '',
+    emrContactName: '',
+    emrContactNum: '',
+    existing_loan: '',
+    collateral_details: '',
+    document: null
   });
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [documentID, setDocumentID] = useState(null);
+  
   const token = localStorage.getItem('token');
+  
   if (!token) {
     navigate('/');
     return;
@@ -51,59 +57,66 @@ if (token) {
       [name]: value
     });
   };
+
+  const handleFileChange = (e) => {
+  setFormData({ ...formData, document: e.target.files[0] });
+  };
+
+  const handleDocumentUpload = async (e) => {
+    e.preventDefault();
+    const payload = new FormData();
+    payload.append('document', formData.document);
+
+    try {
+      const response = await axios.post(`http://localhost:5123/api/loans/uploadDocument`, payload, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Set token for auth
+        }
+      });
+      setDocumentID(response.data.documentID); // Save documentID
+      toast.success("Document uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload document");
+    }
+  };
+
   
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare payload as per API
-    console.log(userId)
+    if (!documentID) {
+      toast.error("Please upload the necessary documents before submitting your application.");
+      return;
+    }
+
     const payload = {
-      userid: userId, // Example static userID
-      applicantDOB: formData.dob,
-      gender: formData.gender,
-      annualIncome: formData.annualIncome,
-      occupation: formData.occupation,
-      loanAmount: formData.loanAmount,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      aadharNo: formData.aadharNo,
-      panNo: formData.panNo,
-      tenure: formData.loanTenure,
-      address: formData.address,
-      mobNo: formData.mobileNumber,
-      alternateMobileNo: formData.altMobileNumber,
-      email: formData.email,
-      emrContactName: formData.emergencyContactName,
-      emrContactNum: formData.emergencyContactNumber,
-      marital_status: formData.maritalStatus,  // Added marital_status in payload
-      pBank_Name: formData.bankName,
-      ifsc_code: formData.ifscCode,
-      emergency_contact_name: formData.emergencyContactName,
-      emergency_contact_num: formData.emergencyContactNumber,
-      existing_loan: formData.existingLoans,
-      collateral_details: formData.collateralDetails
+      ...formData,
+      emrContactName: formData.emergency_contact_name,
+      emrContactNum: formData.emergency_contact_num,
+      documentID: documentID,
+      userid: userId,
+      
+      
     };
 
-    // Send POST request to the API
-    axios.post('http://localhost:5123/api/loans/apply', payload, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,  // Replace with actual cookie value
-      }
-    })
-    .then(response => {
+    try {
+      const response = await axios.post('http://localhost:5123/api/loans/apply', payload, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Set token for auth
+        }
+      });
       toast.success(response.data.message || "Loan application submitted successfully");
-      setError(null);  // Clear any previous errors
-    })
-    .catch(err => {
+      setError(null);
+      setSuccess("Application submitted Successfully");
+    } catch (err) {
       if (err.response?.data?.error) {
         toast.error(err.response.data.error);
       } else {
         toast.error("Error submitting the loan application. Please try again.");
       }
       setError("Error submitting the loan application.");
-    });
+    }
   };
 
   return (
@@ -148,8 +161,8 @@ if (token) {
               type="date"
               className="form-control"
               id="dob"
-              name="dob"
-              value={formData.dob}
+              name="applicantDOB"
+              value={formData.applicantDOB}
               onChange={handleChange}
               required
             />
@@ -221,8 +234,8 @@ if (token) {
               type="number"
               className="form-control"
               id="loanTenure"
-              name="loanTenure"
-              value={formData.loanTenure}
+              name="tenure"
+              value={formData.tenure}
               onChange={handleChange}
               required
             />
@@ -249,21 +262,21 @@ if (token) {
               type="text"
               className="form-control"
               id="mobileNumber"
-              name="mobileNumber"
-              value={formData.mobileNumber}
+              name="mobNo"
+              value={formData.mobNo}
               onChange={handleChange}
               required
             />
           </div>
 
           <div className="col-md-6 mb-3">
-            <label htmlFor="altMobileNumber" className="form-label">Alternate Mobile Number</label>
+            <label htmlFor="alternateMobileNo" className="form-label">Alternate Mobile Number</label>
             <input
               type="text"
               className="form-control"
-              id="altMobileNumber"
-              name="altMobileNumber"
-              value={formData.altMobileNumber}
+              id="alternateMobileNo"
+              name="alternateMobileNo"
+              value={formData.alternateMobileNo}
               onChange={handleChange}
             />
           </div>
@@ -271,12 +284,12 @@ if (token) {
         
         <div className="row">
           <div className="col-md-6 mb-3">
-            <label htmlFor="maritalStatus" className="form-label">Marital Status</label>
+            <label htmlFor="marital_status" className="form-label">Marital Status</label>
             <select
               className="form-control"
-              id="maritalStatus"
-              name="maritalStatus"
-              value={formData.maritalStatus}
+              id="marital_status"
+              name="marital_status"
+              value={formData.marital_status}
               onChange={handleChange}
               required
             >
@@ -337,8 +350,8 @@ if (token) {
               type="text"
               className="form-control"
               id="bankName"
-              name="bankName"
-              value={formData.bankName}
+              name="pBank_Name"
+              value={formData.pBank_Name}
               onChange={handleChange}
               required
             />
@@ -350,8 +363,8 @@ if (token) {
               type="text"
               className="form-control"
               id="ifscCode"
-              name="ifscCode"
-              value={formData.ifscCode}
+              name="ifsc_code"
+              value={formData.ifsc_code}
               onChange={handleChange}
               required
             />
@@ -365,8 +378,9 @@ if (token) {
               type="text"
               className="form-control"
               id="emergencyContactName"
-              name="emergencyContactName"
-              value={formData.emergencyContactName}
+              name="emergency_contact_name"
+        
+              value={formData.emergency_contact_name}
               onChange={handleChange}
               required
             />
@@ -378,8 +392,8 @@ if (token) {
               type="text"
               className="form-control"
               id="emergencyContactNumber"
-              name="emergencyContactNumber"
-              value={formData.emergencyContactNumber}
+              name="emergency_contact_num"
+              value={formData.emergency_contact_num}
               onChange={handleChange}
               required
             />
@@ -392,8 +406,8 @@ if (token) {
             <select
               className="form-control"
               id="existingLoans"
-              name="existingLoans"
-              value={formData.existingLoans}
+              name="existing_loan"
+              value={formData.existing_loan}
               onChange={handleChange}
               required
             >
@@ -409,12 +423,33 @@ if (token) {
               type="text"
               className="form-control"
               id="collateralDetails"
-              name="collateralDetails"
-              value={formData.collateralDetails}
+              name="collateral_details"
+              value={formData.collateral_details}
               onChange={handleChange}
             />
           </div>
-        </div>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="document" className="form-label">Upload Document</label>
+            <input
+              type="file"
+              className="form-control"
+              id="document"
+              name="document"
+              onChange={handleFileChange} // This keeps track of file input
+            />
+            <button type="button" className="btn btn-secondary mt-2" onClick={handleDocumentUpload}>
+              Upload Document
+            </button>
+            {documentID && (
+              <div className="mt-2 text-success">
+                Document uploaded successfully. Document ID: {documentID}
+              </div>
+            )}
+          </div>
+
+          
+
 
         <button type="submit" className="btn btn-primary">Submit</button>
       </form>

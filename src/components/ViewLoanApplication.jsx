@@ -87,6 +87,30 @@ const ViewLoanApplications = () => {
     setSelectedStatus(status);
     setRemark(''); // Clear old remark
   };
+  const handleViewDocument = async (loanApplicationID) => {
+  try {
+    const response = await fetch(`http://localhost:5123/api/loans/${loanApplicationID}/document`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch document details.');
+    }
+
+    const { documentPath } = await response.json();
+    if (documentPath) {
+      const documentURL = `http://localhost:5123/${documentPath}`;
+      window.open(documentURL, '_blank');
+    } else {
+      toast.error('Document path is empty or invalid.');
+    }
+  } catch (error) {
+    toast.error(`Error viewing document: ${error.message}`);
+  }
+};
 
   return (
     <Container fluid>
@@ -219,6 +243,9 @@ const ViewLoanApplications = () => {
                 </>
               ) : (
                 <>
+                <Button variant="info" onClick={() => handleViewDocument(expandedLoan.loanApplicationID)}>
+                  View Document
+                </Button>
                   <Button variant="success" onClick={() => handleActionClick("Approved")}>
                     Approve
                   </Button>

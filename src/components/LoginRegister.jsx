@@ -91,12 +91,14 @@ const LoginRegister = () => {
       });
 
       const data = await res.json();
+      console.log("Register data:",data);
       if (res.ok) {
         toast.success(data.message);
         setTabKey('login');
         
       } else {
-        toast.error(data.message || 'Registration failed');
+         console.log(data.error || data.message); // Log to console for debugging
+         toast.error(data.error || data.message || 'Registration failed');
       }
     } catch (err) {
       toast.error('Server error during registration');

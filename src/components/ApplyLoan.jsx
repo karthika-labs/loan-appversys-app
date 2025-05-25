@@ -84,7 +84,7 @@ if (token) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setError(null);
     if (!documentID) {
       toast.error("Please upload the necessary documents before submitting your application.");
       return;

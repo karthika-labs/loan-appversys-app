@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Nav, Col, Row, Container, Spinner, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const ViewLoanApplications = () => {
   const [loanApplications, setLoanApplications] = useState([]);
@@ -87,6 +90,29 @@ const ViewLoanApplications = () => {
     setSelectedStatus(status);
     setRemark(''); // Clear old remark
   };
+  const handleVerifyDocument = async (loanApplicationID) => {
+  try {
+    const response = await fetch(`http://localhost:5123/api/loans/${loanApplicationID}/document/verify`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    console.log(data);
+    console.log(response)
+
+    if (response.ok) {
+      toast.success(data.verificationStatus || 'Document verified successfully!');
+    } else {
+      toast.error(data.verificationStatus || 'Document verification failed.');
+    }
+  } catch (error) {
+    toast.error(`Error verifying document: ${error.message}`);
+  }
+};
+
   const handleViewDocument = async (loanApplicationID) => {
   try {
     const response = await fetch(`http://localhost:5123/api/loans/${loanApplicationID}/document`, {
@@ -114,6 +140,7 @@ const ViewLoanApplications = () => {
 
   return (
     <Container fluid>
+      
       <Row>
         {/* Sidebar */}
         <Col md={2} className="bg-dark text-white vh-100 p-3">
@@ -243,9 +270,14 @@ const ViewLoanApplications = () => {
                 </>
               ) : (
                 <>
-                <Button variant="info" onClick={() => handleViewDocument(expandedLoan.loanApplicationID)}>
-                  View Document
-                </Button>
+                  <div className="d-flex gap-2 flex-wrap">
+                    <Button variant="info" onClick={() => handleViewDocument(expandedLoan.loanApplicationID)}>
+                      View Document
+                    </Button>
+                    <Button variant="warning" onClick={() => handleVerifyDocument(expandedLoan.loanApplicationID)}>
+                      Verify Document
+                    </Button>
+                  </div>
                   <Button variant="success" onClick={() => handleActionClick("Approved")}>
                     Approve
                   </Button>
@@ -261,7 +293,9 @@ const ViewLoanApplications = () => {
           </Modal>
         </Col>
       </Row>
+
     </Container>
+    
   );
 };
 
